@@ -1,0 +1,16 @@
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:22:6:InitDisplay	1
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:34:15:Menu	5
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:121:6:RysujMenuTimer	1
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:139:6:WyswietlDane	1
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:146:6:WyswietlDaneFloat	1
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:163:6:WyswietlKodBledu	2
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:185:6:InitFraktal	5
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:214:6:FraktalTest	5
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:261:6:FraktalDemo	11
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:317:6:GenerateJulia	5
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:359:6:GenerateMandelbrot	5
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:409:6:HSV2RGB	8
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:448:14:MinalCzas	2
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:467:6:DispErr	1
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:482:6:WyswietlPomoc	2
+../Drivers/BSP/STM32H7xx_Nucleo/lcd.c:513:6:WyswietlAnalizeEth	2

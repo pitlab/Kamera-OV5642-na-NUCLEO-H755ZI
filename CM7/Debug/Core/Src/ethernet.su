@@ -1,0 +1,2 @@
+../Core/Src/ethernet.c:19:10:InitEth	16	static
+../Core/Src/ethernet.c:42:10:AnalizujEth	16	static

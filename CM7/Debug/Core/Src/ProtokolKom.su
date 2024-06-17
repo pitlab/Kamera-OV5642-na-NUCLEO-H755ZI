@@ -1,0 +1,11 @@
+../Core/Src/ProtokolKom.c:32:9:InitProtokol	4	static
+../Core/Src/ProtokolKom.c:48:6:USART3_IRQHandler	4	static
+../Core/Src/ProtokolKom.c:77:6:StartKomUart	24	static
+../Core/Src/ProtokolKom.c:122:9:AnalizujDaneKom	40	static
+../Core/Src/ProtokolKom.c:221:9:DekodujRamke	32	static
+../Core/Src/ProtokolKom.c:330:6:InicjujCRC16	16	static
+../Core/Src/ProtokolKom.c:346:10:LiczCRC16	16	static
+../Core/Src/ProtokolKom.c:364:9:PrzygotujRamke	32	static
+../Core/Src/ProtokolKom.c:410:9:WyslijRamke	48	static
+../Core/Src/ProtokolKom.c:442:9:Wyslij_OK	24	static
+../Core/Src/ProtokolKom.c:457:9:Wyslij_ERR	32	static

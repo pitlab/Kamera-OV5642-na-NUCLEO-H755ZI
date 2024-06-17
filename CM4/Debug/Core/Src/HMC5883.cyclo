@@ -1,0 +1,4 @@
+../Core/Src/HMC5883.c:28:9:StartMagnetometerHMC	1
+../Core/Src/HMC5883.c:46:9:ReadMagnetometerHMC	10
+../Core/Src/HMC5883.c:80:9:InitMagnetometerHMC	2
+../Core/Src/HMC5883.c:111:9:TestPresenceHMC5883	6
