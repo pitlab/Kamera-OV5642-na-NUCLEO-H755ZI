@@ -1,4 +1,0 @@
-../Core/Src/HMC5883.c:28:9:StartMagnetometerHMC	24	static
-../Core/Src/HMC5883.c:46:9:ReadMagnetometerHMC	32	static
-../Core/Src/HMC5883.c:80:9:InitMagnetometerHMC	24	static
-../Core/Src/HMC5883.c:111:9:TestPresenceHMC5883	24	static
