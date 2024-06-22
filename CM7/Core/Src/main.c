@@ -830,14 +830,6 @@ void StartDefaultTask(void const * argument)
 	  			{
 	  				drawBitmap(0, 0, 320, 240, (const unsigned short*)nBuforKamery);	//214ms
 	  				chNowyObrazKamery = 0;
-	  				/*if ((hdcmi.Instance->CR & DCMI_CR_CM) == DCMI_MODE_SNAPSHOT)	//1: Snapshot mode (single frame)
-	  				{
-	  					err = HAL_DCMI_Stop(&hdcmi);
-
-	  					hdcmi.Instance->CR |= DCMI_CR_CAPTURE;
-	  					err = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
-	  				}*/
-	  				//WyswietlDane8("Format control", CzytajKamInit(), 220);	//wyświetla zawartość rejestru kamery
 	  				WyswietlKodBledu(chErr, 10, 220);
 	  			}
 	  			break;
@@ -857,7 +849,6 @@ void StartDefaultTask(void const * argument)
 	      	case TP_KAM_SET2:
 	      		if (chRysujRaz)
 	  			{
-	      			//chErr = InitKamera2();
 	      			chErr = KameraInit();
 	  				chRysujRaz = 0;
 	  				chTrybPracy = TP_KAMERA_RGB;
@@ -896,20 +887,7 @@ void StartDefaultTask(void const * argument)
 				uint32_t histogram[16];
 
 				chObrazGotowy = 0;
-				/*chWskLicz++;
-				if (chWskLicz > 20)
-				{
-					chWskLicz = 0;
-					chWskRej++;
-					chWskRej &= 1;
-				}
-
-				for (m=0; m<16; m++)
-					histogram[m] = 0; */
-
-
 				chErr = ZrobZdjecie(320, 240);
-				//chErr = ZrobZdjecie2(320, 240, chRejKam[chWskRej]);
 				if (!chErr)
 				{
 					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
@@ -936,7 +914,6 @@ void StartDefaultTask(void const * argument)
 
 					//rysuj histogram na  ekranie
 					setColor(GREEN);
-					//WyswietlDane8("Rej", chRejKam[chWskRej], 10);
 					for (uint8_t x=0; x<16; x++)
 						fillRect(x*10, 240-histogram[x], x*10+6, 240);
 				}
@@ -945,7 +922,7 @@ void StartDefaultTask(void const * argument)
 	      	case TP_KAM_SET5:
 	      		if (chRysujRaz)
 	  			{
-	      			chErr = InitKamera5();
+	      			//chErr = InitKamera5();
 	  				chRysujRaz = 0;
 	  				chTrybPracy = TP_KAMERA_RGB;
 	  			}

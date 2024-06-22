@@ -16,5 +16,11 @@ Dla przykładu na STM32H755 fraktal Mandelbrota o rozdzielczości 320x240 liczon
 ![Mandelbrot](obr/Mandelbrot.jpg)
 
 ### Histogram
-Świetne narzędzie do analizy obrazu i debugowania problemów. Dalczego obraz ma przekłamane kolory? Bo nie ma w nim aż 5 z 16 bitów.
+Świetne narzędzie do analizy obrazu i debugowania problemów. Dalczego obraz ma przekłamane kolory? 
+
 ![Histogram](obr/histogram_bitow.jpg)
+
+Bo nie ma w nim 4 z 16 bitów: trzeba było zalutować zworki SB9 i SB20 na płytce Nucleo. 
+Jeżeli jeszcze zmieniłem zbocze na którym próbkowane są dane to obraz stał się najzupełniej poprawny:
+
+![Poprawny obraz](obr/obraz_OK.jpg)

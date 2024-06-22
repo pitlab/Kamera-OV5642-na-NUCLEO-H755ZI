@@ -46,7 +46,7 @@ unsigned char Menu(unsigned char chPozycja)
 		setColor(YELLOW);
 		sprintf(chNapis, "Podglad kamery RGB");
 		print(chNapis, 20, 40, 0);
-		sprintf(chNapis, "Podglad kamery RAW");
+		sprintf(chNapis, "Magnetometr");
 		print(chNapis, 20, 60, 0);
 		//sprintf(chNapis, "Setup 1");
 		sprintf(chNapis, "Analiza ramki Eth");

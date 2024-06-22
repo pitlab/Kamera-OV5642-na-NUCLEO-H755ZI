@@ -33,11 +33,6 @@ extern uint8_t chNowyObrazKamery;
 extern void KameraPWDN(uint32_t SetReset);
 
 HAL_StatusTypeDef KameraInit(void);
-HAL_StatusTypeDef InitKamera1(void);
-HAL_StatusTypeDef InitKamera2(void);
-HAL_StatusTypeDef InitKamera3(void);
-HAL_StatusTypeDef InitKamera4(void);
-HAL_StatusTypeDef InitKamera5(void);
 HAL_StatusTypeDef RozpocznijPraceDCMI(uint8_t chAParat);
 HAL_StatusTypeDef UstawKamere(typKonfKam *konf);
 HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc);
