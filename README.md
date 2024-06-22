@@ -17,4 +17,4 @@ Dla przykładu na STM32H755 fraktal Mandelbrota o rozdzielczości 320x240 liczon
 
 ### Histogram
 Świetne narzędzie do analizy obrazu i debugowania problemów. Dalczego obraz ma przekłamane kolory? Bo nie ma w nim aż 5 z 16 bitów.
-![Histogram](img/)histogram_bitow.jpg 
+![Histogram](img/)histogram_bitow.jpg)
