@@ -46,23 +46,33 @@ unsigned char Menu(unsigned char chPozycja)
 		setColor(YELLOW);
 		sprintf(chNapis, "Podglad kamery RGB");
 		print(chNapis, 20, 40, 0);
-		sprintf(chNapis, "Magnetometr");
-		print(chNapis, 20, 60, 0);
-		//sprintf(chNapis, "Setup 1");
-		sprintf(chNapis, "Analiza ramki Eth");
-		print(chNapis, 20, 80, 0);
+		//sprintf(chNapis, "Magnetometr");
 		sprintf(chNapis, "Setup 2");
-		print(chNapis, 20, 100, 0);
+		print(chNapis, 20, 60, 0);
+		//sprintf(chNapis, "Analiza ramki Eth");
 		sprintf(chNapis, "Histogram RGB565");
-		print(chNapis, 20, 120, 0);
+		print(chNapis, 20, 80, 0);
 		sprintf(chNapis, "Histogram bitow obrazu");
+		print(chNapis, 20, 100, 0);
+		sprintf(chNapis, "Konwersja na czarno-biały");
+		print(chNapis, 20, 120, 0);
+		sprintf(chNapis, "Detekcja krawedzi");
 		print(chNapis, 20, 140, 0);
-		sprintf(chNapis, "Setup 5");
+		sprintf(chNapis, "...");
 		print(chNapis, 20, 160, 0);
 		sprintf(chNapis, "Fraktale");
 		print(chNapis, 20, 180, 0);
 		sprintf(chNapis, "Pomocy, kabelki!");
 		print(chNapis, 20, 200, 0);
+
+
+#define TP_KAM_SET2		1
+#define TP_HIST_RGB		2
+#define TP_HIST_BIT		3
+#define TP_KAM_CB		4
+#define TP_DET_KRAW		5
+#define TP_
+
 
 		/*sprintf(chNapis, "Kasuj flash");
 		print(chNapis, 180, 40, 0);

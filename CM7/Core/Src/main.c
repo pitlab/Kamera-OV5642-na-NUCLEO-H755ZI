@@ -30,6 +30,7 @@
 #include "display.h"
 #include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
 #include "analiza_obrazu.h"
+#include "..\..\..\Common\Inc\errcode.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -919,14 +920,34 @@ void StartDefaultTask(void const * argument)
 				}
 	  			break;
 
-	      	case TP_KAM_SET5:
-	      		if (chRysujRaz)
-	  			{
-	      			//chErr = InitKamera5();
-	  				chRysujRaz = 0;
-	  				chTrybPracy = TP_KAMERA_RGB;
+	      	case TP_KAM_CB:
+	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					nCzas = HAL_GetTick();
+	      			KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+	      			nCzas = MinalCzas(nCzas);
+	      			KonwersjaCB7doRGB565(chBuforCB, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+	      			drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+	      			WyswietlDane32("t", nCzas, 220);
 	  			}
+				chErr = ZrobZdjecie(320, 240);
 	  			break;
+
+	      	case TP_DET_KRAW:
+	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+					nCzas = HAL_GetTick();
+					DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 32);
+					nCzas = MinalCzas(nCzas);
+					KonwersjaCB7doRGB565(chBuforCKraw, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+					WyswietlDane32("t", nCzas, 220);
+				}
+				chErr = ZrobZdjecie(320, 240);
+	      		break;
 
 	      	case TP_FRAKTAL:	FraktalDemo();		break;
 	      	case TP_POMOC:		WyswietlPomoc();	break;
@@ -952,6 +973,7 @@ void StartDefaultTask(void const * argument)
 
 	      osDelay(1);
 	}
+
   /* USER CODE END 5 */
 }
 

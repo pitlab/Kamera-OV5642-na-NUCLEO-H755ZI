@@ -22,7 +22,8 @@
 
 
 uint32_t nBuforKamery[ROZM_BUF32_KAM];
-//uint16_t sBuforLCD[ROZM_BUF16_LCD];
+uint8_t chBuforCB[ROZM_BUF_CB];
+uint8_t chBuforCKraw[ROZM_BUF_CB];
 uint16_t sLicznikLiniiKamery;
 struct st_KonfKam KonfKam;
 
@@ -46,6 +47,9 @@ HAL_StatusTypeDef Wyslij_Blok_Kamera(const struct sensor_reg reglist[]);
 void RAW2RGB(uint32_t *nBufKamery, uint16_t *sBufLCD);
 void OV5642_OutSize_Set(uint16_t offX, uint16_t offY, uint16_t width, uint16_t height);
 uint8_t	SprawdzKamere(void);
+uint8_t CzekajNaBit(volatile uint8_t *chBit, uint16_t sTimeout);
+
+
 extern void Error_Handler(void);
 
 #endif /* INC_KAMERA_H_ */

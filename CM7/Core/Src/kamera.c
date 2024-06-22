@@ -547,3 +547,25 @@ uint8_t	SprawdzKamere(void)
 		return ERR_OK;
 }
 
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Aktywne oczekiwanie na zmianę stanu zmiennej z timeoutem
+// Parametry:
+// [we] *chBit - wskaźnik na zmienną typu volatile, która ma zmienić swój stan w przerwaniu
+// [we] sTimeout - czas oczekiwania liczony w obiegach pętli
+// Zwraca: systemowy kod błędu
+////////////////////////////////////////////////////////////////////////////////
+uint8_t CzekajNaBit(volatile uint8_t *chBit, uint16_t sTimeout)
+{
+	do
+	{
+		sTimeout--;
+	}
+	while (sTimeout && (*chBit == 0));
+
+	if (sTimeout)
+		return ERR_OK;
+	else
+		return ERR_TIMEOUT;
+}

@@ -33,18 +33,20 @@
 #define LCD_WYS		240
 
 //rozmiary buforów wyrażone w słowach 16-bit
+#define ROZM_BUF_CB		LCD_SZER * LCD_WYS
 #define ROZM_BUF16_LCD	LCD_SZER * LCD_WYS
-#define ROZM_BUF32_KAM	LCD_SZER * LCD_WYS
+#define ROZM_BUF32_KAM	LCD_SZER * LCD_WYS / 2
 
 //tryby pracy
 #define TP_KAMERA_RGB	0
-#define TP_CAN_MAGN		1
-#define TP_ANALIZA_ETH	2
-#define TP_KAM_SET1		2
-#define TP_KAM_SET2		3
-#define TP_HIST_RGB		4
-#define TP_HIST_BIT		5
-#define TP_KAM_SET5		6
+#define TP_CAN_MAGN		11
+#define TP_ANALIZA_ETH	12
+#define TP_KAM_SET2		1
+#define TP_HIST_RGB		2
+#define TP_HIST_BIT		3
+#define TP_KAM_CB		4
+#define TP_DET_KRAW		5
+#define TP_				6
 #define TP_FRAKTAL		7
 #define TP_POMOC		8
 #define TP_MENU			10

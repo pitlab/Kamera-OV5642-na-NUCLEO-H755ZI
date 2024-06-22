@@ -13,8 +13,9 @@
 
 #include <stdint.h>
 
-void KonwersjaRGB565doCB7(uint8_t *obrazRGB565, uint8_t *obrazCB565, uint8_t *obrazCB, uint32_t rozmiar);
-void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint8_t *obrazCB565, uint32_t rozmiar);
+
+void KonwersjaRGB565doCB7(uint16_t *obrazRGB565, uint8_t *obrazCB, uint32_t rozmiar);
+void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmiar);
 void DetekcjaKrawedziRoberts(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog);
 void HistogramCB7(uint8_t *obraz, uint8_t *hist, uint32_t rozmiar);
 void HistogramRGB565(uint8_t *obrazRGB565, uint8_t *histR, uint8_t *histG, uint8_t *histB, uint32_t rozmiar);

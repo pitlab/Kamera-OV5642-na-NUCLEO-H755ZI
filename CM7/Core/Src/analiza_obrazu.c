@@ -1,10 +1,10 @@
-/*
- * analiza_obrazu.c
- *
- *  Created on: Jun 20, 2024
- *      Author: PitLab
- */
-
+//////////////////////////////////////////////////////////////////////////////
+//
+// Zestaw narzędzi do obróbki obrazu
+//
+// (c) PitLab 2024
+// http://www.pitlab.pl
+//////////////////////////////////////////////////////////////////////////////
 #include "analiza_obrazu.h"
 #include "stdlib.h"
 
@@ -14,27 +14,18 @@
 // Zapisuje kopię obrazu czarnobiałego w formacie wyświetlacza RGB565
 // Parametry:
 // [we] obrazRGB565* - wskaźnik na bufor[2*rozmiar] z obrazem kolorowym
-// [wy] obrazCB565* - wskaźnik na bufor[2*rozmiar] z obrazem czarno-białym
-// [wy] obrazCB* - wskażnik na bufor[rozmiar] z obrazem czarno-białym
+// [wy] obrazCB* - wskaźnik na bufor[rozmiar] z obrazem czarno-białym
 // [we] rozmiar - rozmiar bufora
 // Zwraca: nic
 ////////////////////////////////////////////////////////////////////////////////
-void KonwersjaRGB565doCB7(uint8_t *obrazRGB565, uint8_t *obrazCB565, uint8_t *obrazCB, uint32_t rozmiar)
+void KonwersjaRGB565doCB7(uint16_t *obrazRGB565, uint8_t *obrazCB, uint32_t rozmiar)
 {
-	uint8_t pix1, pix2, pixCB, pixRB, pixG;
+	uint16_t pix;
 	for (uint32_t n=0; n<rozmiar; n++)
 	{
-		pix1 = *(obrazRGB565 + 2 * n + 0);		//B+G
-		pix2 = *(obrazRGB565 + 2 * n + 1);		//G+R
-
+		pix = *(obrazRGB565 + n);
 		//bity czerwony i niebieski mają skalę 5-bitową (32), zielony 6-bitową (64).
-		pixCB = (pix1 >> 3) + (pix2 & 0x1F) + ((pix1 & 0x07) << 3) + (pix2 >> 5);		//((R32 + B32) + G64)
-		*(obrazCB + n) = pixCB;
-
-		pixRB = pixCB >> 2;	//składowe: czerwona i niebieska
-		pixG  = pixCB >> 1;	//składowa zielona
-		*(obrazCB565 + 2 * n + 0) = ((pixG & 0x07) << 5) + pixRB;
-		*(obrazCB565 + 2 * n + 1) = (pixRB << 3) + (pixG >> 3);
+		*(obrazCB + n) = (pix >> 11) + ((pix & 0x07E0) >> 5) + (pix & 0x1F);		//B32 + G64 + R32
 	}
 }
 
@@ -48,16 +39,15 @@ void KonwersjaRGB565doCB7(uint8_t *obrazRGB565, uint8_t *obrazCB565, uint8_t *ob
 // rozmiar - rozmiar bufora
 // Zwraca: nic
 ////////////////////////////////////////////////////////////////////////////////
-void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint8_t *obrazCB565, uint32_t rozmiar)
+void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmiar)
 {
-	uint8_t pixCB, pixRB, pixG;
+	uint16_t pixCB, pixRB, pixG;
 	for (uint32_t n=0; n<rozmiar; n++)
 	{
 		pixCB = *(obrazCB+n);
 		pixRB = pixCB >> 2;	//składowe: czerwona i niebieska
 		pixG  = pixCB >> 1;	//składowa zielona
-		*(obrazCB565 + 2*n+0) = ((pixG & 0x07) << 5) + pixRB;
-		*(obrazCB565 + 2*n+1) = (pixRB << 3) + (pixG >> 3);
+		*(obrazCB565 + n) = (pixRB << 11) + (pixG << 5) + pixRB;
 	}
 }
 

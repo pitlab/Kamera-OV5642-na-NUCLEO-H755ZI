@@ -94,8 +94,12 @@ void Error_Handler(void);
 /* USER CODE BEGIN Private defines */
 
 void KameraPWDN(uint32_t SetReset);
+
+extern uint8_t CzekajNaBit(volatile uint8_t *chBit, uint16_t sTimeout);
 extern uint16_t sBuforLCD[];
 extern uint32_t nBuforKamery[];
+extern uint8_t chBuforCB[];
+extern uint8_t chBuforCKraw[ROZM_BUF_CB];
 extern char chNapis[];
 extern unsigned char chRysujRaz;	//flaga informująca o konieczności jednorazowego narysowania statycznych elementów ekranu
 extern void InitDisplay(void);
@@ -118,6 +122,10 @@ extern void RAW2RGB(uint32_t *nBufKamery, uint16_t *sBufLCD);
 extern HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc);
 extern HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej);
 extern unsigned int MinalCzas(unsigned int nStart);
+
+//obróbka obrazu
+extern void KonwersjaRGB565doCB7(uint16_t *obrazRGB565, uint8_t *obrazCB, uint32_t rozmiar);
+extern void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmiar);
 
 //Ethernet
 extern uint8_t  InitEth(ETH_HandleTypeDef* pEth);
