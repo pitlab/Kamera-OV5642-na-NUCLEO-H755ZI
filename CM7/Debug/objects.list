@@ -1,6 +1,7 @@
 "./Common/Narzedzia.o"
 "./Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.o"
 "./Core/Src/ProtokolKom.o"
+"./Core/Src/analiza_obrazu.o"
 "./Core/Src/ethernet.o"
 "./Core/Src/freertos.o"
 "./Core/Src/kamera.o"

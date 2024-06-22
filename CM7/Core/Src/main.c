@@ -29,6 +29,7 @@
 /* USER CODE BEGIN Includes */
 #include "display.h"
 #include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
+#include "analiza_obrazu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,7 +99,7 @@ static void MPU_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_TIM14_Init(void);
-//static void MX_DCMI_Init(void);
+static void MX_DCMI_Init(void);
 static void MX_I2C4_Init(void);
 static void MX_ETH_Init(void);
 static void MX_CRC_Init(void);
@@ -791,6 +792,10 @@ void KameraPWDN(uint32_t SetReset)
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
+	extern volatile uint8_t chObrazGotowy;
+	uint8_t chRejKam[7] ={0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x6F};
+	uint8_t chWskRej = 0;
+	uint8_t chWskLicz = 0;
   /* Infinite loop */
 	Menu(chPozycjaMenu);
 	for(;;)
@@ -832,7 +837,7 @@ void StartDefaultTask(void const * argument)
 	  					hdcmi.Instance->CR |= DCMI_CR_CAPTURE;
 	  					err = HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
 	  				}*/
-	  				//WyswietlDane("Format control", CzytajKamInit(), 220);	//wyświetla zawartość rejestru kamery
+	  				//WyswietlDane8("Format control", CzytajKamInit(), 220);	//wyświetla zawartość rejestru kamery
 	  				WyswietlKodBledu(chErr, 10, 220);
 	  			}
 	  			break;
@@ -859,22 +864,79 @@ void StartDefaultTask(void const * argument)
 	  			}
 	  			break;
 
-	      	case TP_KAM_SET3:
-	      		if (chRysujRaz)
-	  			{
-	      			chErr = InitKamera3();
-	  				chRysujRaz = 0;
-	  				chTrybPracy = TP_KAMERA_RGB;
+	      	case TP_HIST_RGB:		//histogram obrazu RGB565
+				uint8_t histR[32], histG[64], histB[32];
+				chObrazGotowy = 0;
+				uint32_t nCzas;
+				chErr = ZrobZdjecie(320, 240);
+				if (!chErr)
+				{
+					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);	//214ms
+					nCzas = HAL_GetTick();
+					HistogramRGB565((uint8_t*)nBuforKamery, histR, histG, histB, 320*240);
+					nCzas = MinalCzas(nCzas);
+
+					//rysuj histogram na  ekranie
+					setColor(RED);
+					for (uint8_t x=0; x<32; x++)
+						fillRect(x*2, 240-histR[x], x*2+1, 240);
+					setColor(GREEN);
+					for (uint8_t x=0; x<64; x++)
+						fillRect(x*2+64, 240-histG[x], x*2+65, 240);
+					setColor(BLUE);
+					for (uint8_t x=0; x<32; x++)
+						fillRect(x*2+192, 240-histB[x], x*2+193, 240);
+					WyswietlDane32("t", nCzas, 10);		//czas liczenia histogramu
 	  			}
 	  			break;
 
-	      	case TP_KAM_SET4:
-	      		if (chRysujRaz)
-	  			{
-	      			chErr = InitKamera4();
-	  				chRysujRaz = 0;
-	  				chTrybPracy = TP_KAMERA_RGB;
-	  			}
+	      	case TP_HIST_BIT:		//histogram bitów obrazu kamery
+	      		uint16_t m, pix;
+				uint32_t histogram[16];
+
+				chObrazGotowy = 0;
+				chWskLicz++;
+				if (chWskLicz > 10)
+				{
+					chWskLicz = 0;
+					chWskRej++;
+					if (chWskRej > 6)
+						chWskRej = 0;
+				}
+
+
+				//chErr = ZrobZdjecie(320, 240);
+				chErr = ZrobZdjecie2(320, 240, chRejKam[chWskRej]);
+				if (!chErr)
+				{
+					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);	//214ms
+					for (uint32_t n=0; n<320*240; n++)
+					{
+						pix = *((uint16_t*)nBuforKamery + n);
+						for (m=0; m<16; m++)
+						{
+							pix >>= 1;
+							if (pix & 0x01)
+								histogram[m]++;
+						}
+					}
+
+					//normalizacja histogramu
+					for (uint8_t x=0; x<16; x++)
+					{
+						histogram[x] >>= 9;
+						if (histogram[x] > 0xFF)
+							histogram[x] = 0xFF;
+					}
+
+					//rysuj histogram na  ekranie
+					setColor(GREEN);
+					WyswietlDane8("Rej", chRejKam[chWskRej], 10);
+					for (uint8_t x=0; x<16; x++)
+						fillRect(x*8, 240-histogram[x], x*8+6, 240);
+				}
 	  			break;
 
 	      	case TP_KAM_SET5:
@@ -895,7 +957,7 @@ void StartDefaultTask(void const * argument)
 	      			chStatusZdjecia = SGZ_BLAD;		//wystapił błąd wykonania zdjecia
 	      		else
 	      			chStatusZdjecia = SGZ_GOTOWE;	//Zdjecie gotowe, można je pobrać
-	      		WyswietlDane("Wykonano zdjecie: ", chErr, 220);
+	      		WyswietlDane8("Wykonano zdjecie: ", chErr, 220);
 	      		chTrybPracy = TP_KAMERA_RGB;		//wróć do wyświetlania obrazu
 	      		chNowyObrazKamery = 1;
 	      		break;

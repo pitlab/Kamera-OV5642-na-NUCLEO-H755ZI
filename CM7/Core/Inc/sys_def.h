@@ -42,8 +42,8 @@
 #define TP_ANALIZA_ETH	2
 #define TP_KAM_SET1		2
 #define TP_KAM_SET2		3
-#define TP_KAM_SET3		4
-#define TP_KAM_SET4		5
+#define TP_HIST_RGB		4
+#define TP_HIST_BIT		5
 #define TP_KAM_SET5		6
 #define TP_FRAKTAL		7
 #define TP_POMOC		8

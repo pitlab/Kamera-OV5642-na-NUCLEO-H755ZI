@@ -50,7 +50,8 @@ void GenerateMandelbrot(float centre_X, float centre_Y, float Zoom, unsigned sho
 void InitFraktal(unsigned char chTyp);
 unsigned int MinalCzas(unsigned int  nStart);
 void WyswietlPomoc(void);
-void WyswietlDane(char *str, uint8_t dane, uint8_t pozY);
+void WyswietlDane8(char *str, uint8_t dane, uint8_t pozY);
+void WyswietlDane32(char *str, uint32_t dane, uint8_t pozY);
 void WyswietlDaneFloat(char *str, float dane, uint8_t pozY);
 void WyswietlKodBledu(uint8_t blad, uint8_t pozX, uint8_t pozY);
 void WyswietlAnalizeEth(uint8_t* chAdrEthNad, uint8_t* chAdrIPNad);

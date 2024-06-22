@@ -41,6 +41,7 @@ HAL_StatusTypeDef InitKamera5(void);
 HAL_StatusTypeDef RozpocznijPraceDCMI(uint8_t chAParat);
 HAL_StatusTypeDef UstawKamere(typKonfKam *konf);
 HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc);
+HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej);
 uint8_t CzytajKamInit(void);
 HAL_StatusTypeDef Wyslij_I2C_Kamera(uint16_t rejestr, uint8_t dane);
 HAL_StatusTypeDef Czytaj_I2C_Kamera(uint16_t rejestr, uint8_t *dane);

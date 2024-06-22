@@ -53,9 +53,9 @@ unsigned char Menu(unsigned char chPozycja)
 		print(chNapis, 20, 80, 0);
 		sprintf(chNapis, "Setup 2");
 		print(chNapis, 20, 100, 0);
-		sprintf(chNapis, "Setup 3");
+		sprintf(chNapis, "Histogram RGB565");
 		print(chNapis, 20, 120, 0);
-		sprintf(chNapis, "Setup 4");
+		sprintf(chNapis, "Histogram bitow obrazu");
 		print(chNapis, 20, 140, 0);
 		sprintf(chNapis, "Setup 5");
 		print(chNapis, 20, 160, 0);
@@ -136,10 +136,17 @@ void RysujMenuTimer(unsigned short sCzas)
 // pozY - współrzędne Y wiersza
 // Zwraca: nic
 ////////////////////////////////////////////////////////////////////////////////
-void WyswietlDane(char *str, uint8_t dane, uint8_t pozY)
+void WyswietlDane8(char *str, uint8_t dane, uint8_t pozY)
 {
 	setColor(GREEN);
 	sprintf(chNapis, "%s: 0x%X", str, dane);
+	print(chNapis, 10, pozY, 0);
+}
+
+void WyswietlDane32(char *str, uint32_t dane, uint8_t pozY)
+{
+	setColor(BLUE);
+	sprintf(chNapis, "%s: %ld", str, dane);
 	print(chNapis, 10, pozY, 0);
 }
 

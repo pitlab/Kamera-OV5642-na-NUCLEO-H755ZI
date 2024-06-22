@@ -105,7 +105,7 @@ HAL_StatusTypeDef KameraInit(void)
 ////////////////////////////////////////////////////////////////////////////////
 HAL_StatusTypeDef UstawKamere(typKonfKam *konf)
 {
-	uint8_t chReg;
+	//uint8_t chReg;
 
 	Wyslij_I2C_Kamera(0x5001, 0x7F);	//ISP control 01: [7] Special digital effects, [6] UV adjust enable, [5]1=Vertical scaling enable, [4]1=Horizontal scaling enable, [3] Line stretch enable, [2] UV average enable, [1] color matrix enable, [0] auto white balance AWB
 
@@ -479,17 +479,32 @@ HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc)
 	if (err)
 		return err;
 
-	/*TIM14->CR1 |= TIM_CR1_CEN;					//włącz timer taktujacy kamerę
-	TIM14->ARR = KAMERA_DZIELNIK_ZEGARA - 1;	//częstotliwość PWM
-	TIM14->CCR1 = KAMERA_WYPELN_PWM;			//wypełnienie PWM
-	TIM14->CCER |= TIM_CCER_CC1E;				//włącz wyjście timera
+	//skalowanie obrazu
+	Wyslij_I2C_Kamera(0x5001, 0x7F);	//ISP control 01: [7] Special digital effects, [6] UV adjust enable, [5]1=Vertical scaling enable, [4]1=Horizontal scaling enable, [3] Line stretch enable, [2] UV average enable, [1] color matrix enable, [0] auto white balance AWB
+	Wyslij_I2C_Kamera(0x3804, 0x05);	//Timing HW: [3:0] Horizontal width high byte 0x500=1280,  0x280=640, 0x140=320 (scale input}
+	Wyslij_I2C_Kamera(0x3805, 0x00);	//Timing HW: [7:0] Horizontal width low byte
+	Wyslij_I2C_Kamera(0x3806, 0x03);	//Timing VH: [3:0] HREF vertical height high byte 0x3C0=960, 0x1E0=480, 0x0F0=240
+	Wyslij_I2C_Kamera(0x3807, 0xC0);	//Timing VH: [7:0] HREF vertical height low byte
 
-	Wyslij_I2C_Kamera(0x3103, 0x93);			//PLL clock select: [1] PLL input clock: 1=from pre-divider
-	Wyslij_I2C_Kamera(0x3008, 0x82);			//system control 00: [7] software reset mode, [6] software power down mode {def=0x02}
-	HAL_Delay(100);
-	err = Wyslij_Blok_Kamera(OV5642_RGB_QVGA);					//150ms
+	//ustaw rozmiar obrazu
+	Wyslij_I2C_Kamera(0x3808, (sSzerokosc & 0xFF00)>>8);	//Timing DVPHO: [3:0] output horizontal width high byte [11:8]
+	Wyslij_I2C_Kamera(0x3809, (sSzerokosc & 0x00FF));		//Timing DVPHO: [7:0] output horizontal width low byte [7:0]
+	Wyslij_I2C_Kamera(0x380a, (sWysokosc & 0xFF00)>>8);		//Timing DVPVO: [3:0] output vertical height high byte [11:8]
+	Wyslij_I2C_Kamera(0x380b, (sWysokosc & 0x00FF));		//Timing DVPVO: [7:0] output vertical height low byte [7:0]
+
+	Wyslij_I2C_Kamera(0x4300, 0x6F);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
+
+	//Konfiguracja transferu DMA z DCMI do pamięci
+	return HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
+}
+
+HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej)
+{
+	HAL_StatusTypeDef err;
+
+	err = HAL_DCMI_Stop(&hdcmi);
 	if (err)
-		return err; */
+		return err;
 
 	//skalowanie obrazu
 	Wyslij_I2C_Kamera(0x5001, 0x7F);	//ISP control 01: [7] Special digital effects, [6] UV adjust enable, [5]1=Vertical scaling enable, [4]1=Horizontal scaling enable, [3] Line stretch enable, [2] UV average enable, [1] color matrix enable, [0] auto white balance AWB
@@ -504,46 +519,11 @@ HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc)
 	Wyslij_I2C_Kamera(0x380a, (sWysokosc & 0xFF00)>>8);		//Timing DVPVO: [3:0] output vertical height high byte [11:8]
 	Wyslij_I2C_Kamera(0x380b, (sWysokosc & 0x00FF));		//Timing DVPVO: [7:0] output vertical height low byte [7:0]
 
-	/*Wyslij_I2C_Kamera(0x4300, 0x6F);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
-
-	//konfiguracja DCMI
-	hdcmi.Instance = DCMI;
-	hdcmi.Init.SynchroMode = DCMI_SYNCHRO_HARDWARE;
-	hdcmi.Init.PCKPolarity = DCMI_PCKPOLARITY_FALLING;
-	hdcmi.Init.VSPolarity = DCMI_VSPOLARITY_LOW;
-	hdcmi.Init.HSPolarity = DCMI_HSPOLARITY_HIGH;
-	hdcmi.Init.CaptureRate = DCMI_CR_ALL_FRAME;
-	hdcmi.Init.ExtendedDataMode = DCMI_EXTEND_DATA_8B;
-	hdcmi.Init.JPEGMode = DCMI_JPEG_DISABLE;
-	hdcmi.Init.ByteSelectMode = DCMI_BSM_ALL;
-	hdcmi.Init.ByteSelectStart = DCMI_OEBS_ODD;
-	hdcmi.Init.LineSelectMode = DCMI_LSM_ALL;
-	hdcmi.Init.LineSelectStart = DCMI_OELS_ODD;
-	hdcmi.Instance->IER = DCMI_IT_FRAME | DCMI_IT_OVR | DCMI_IT_ERR | DCMI_IT_VSYNC | DCMI_IT_LINE;
-	err = HAL_DCMI_Init(&hdcmi);
-	if (err)
-		return err;
-
-    // DCMI Init
-    hdma_dcmi.Instance = DMA1_Stream0;
-    hdma_dcmi.Init.Request = DMA_REQUEST_DCMI;
-    hdma_dcmi.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_dcmi.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_dcmi.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_dcmi.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_dcmi.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_dcmi.Init.Mode = DMA_NORMAL;
-    hdma_dcmi.Init.Priority = DMA_PRIORITY_HIGH;
-    hdma_dcmi.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
-    err = HAL_DMA_Init(&hdma_dcmi);
-	if (err)
-		return err; */
+	Wyslij_I2C_Kamera(0x4300, rej);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
 
 	//Konfiguracja transferu DMA z DCMI do pamięci
 	return HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Odczytuje zadany rejestr kamery i zwraca do wyższych warstw oprogramowania

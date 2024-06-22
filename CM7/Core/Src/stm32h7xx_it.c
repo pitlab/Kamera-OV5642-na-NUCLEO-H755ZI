@@ -61,6 +61,9 @@ extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim6;
 
+
+volatile uint8_t chObrazGotowy;
+
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -173,6 +176,7 @@ void DMA1_Stream0_IRQHandler(void)
   /* USER CODE END DMA1_Stream0_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_dcmi);
   /* USER CODE BEGIN DMA1_Stream0_IRQn 1 */
+  chObrazGotowy = 1;
 
   /* USER CODE END DMA1_Stream0_IRQn 1 */
 }
