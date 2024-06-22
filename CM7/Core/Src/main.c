@@ -793,9 +793,9 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
 	extern volatile uint8_t chObrazGotowy;
-	uint8_t chRejKam[7] ={0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x6F};
+	/*uint8_t chRejKam[2] ={0x61, 0x6F};
 	uint8_t chWskRej = 0;
-	uint8_t chWskLicz = 0;
+	uint8_t chWskLicz = 0; */
   /* Infinite loop */
 	Menu(chPozycjaMenu);
 	for(;;)
@@ -896,18 +896,20 @@ void StartDefaultTask(void const * argument)
 				uint32_t histogram[16];
 
 				chObrazGotowy = 0;
-				chWskLicz++;
-				if (chWskLicz > 10)
+				/*chWskLicz++;
+				if (chWskLicz > 20)
 				{
 					chWskLicz = 0;
 					chWskRej++;
-					if (chWskRej > 6)
-						chWskRej = 0;
+					chWskRej &= 1;
 				}
 
+				for (m=0; m<16; m++)
+					histogram[m] = 0; */
 
-				//chErr = ZrobZdjecie(320, 240);
-				chErr = ZrobZdjecie2(320, 240, chRejKam[chWskRej]);
+
+				chErr = ZrobZdjecie(320, 240);
+				//chErr = ZrobZdjecie2(320, 240, chRejKam[chWskRej]);
 				if (!chErr)
 				{
 					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
@@ -917,9 +919,10 @@ void StartDefaultTask(void const * argument)
 						pix = *((uint16_t*)nBuforKamery + n);
 						for (m=0; m<16; m++)
 						{
-							pix >>= 1;
+
 							if (pix & 0x01)
 								histogram[m]++;
+							pix >>= 1;
 						}
 					}
 
@@ -933,9 +936,9 @@ void StartDefaultTask(void const * argument)
 
 					//rysuj histogram na  ekranie
 					setColor(GREEN);
-					WyswietlDane8("Rej", chRejKam[chWskRej], 10);
+					//WyswietlDane8("Rej", chRejKam[chWskRej], 10);
 					for (uint8_t x=0; x<16; x++)
-						fillRect(x*8, 240-histogram[x], x*8+6, 240);
+						fillRect(x*10, 240-histogram[x], x*10+6, 240);
 				}
 	  			break;
 

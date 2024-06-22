@@ -803,8 +803,8 @@ const struct sensor_reg OV5642_RGB_QVGA[]  =
 	{0x380e ,0x07},
 	{0x380f ,0xd0},
 	{0x5000 ,0x4f},
-	//{0x4300 ,0x30},	//format control [7..4] 3=YUV422, [3..0] 0=YUYV
-	{0x4300, 0x61},		//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]},
+	{0x4300 ,0x30},	//format control [7..4] 3=YUV422, [3..0] 0=YUYV
+	//{0x4300, 0x61},		//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]},
 	{0x3503 ,0x07},
 	{0x3501 ,0x73},
 	{0x3502 ,0x80},
@@ -1356,8 +1356,7 @@ const struct sensor_reg OV5642_RGB_QVGA[]  =
 	{0x568e ,0xaa},
 	{0x568f ,0xaa},
 	
-	{0x4740, 0x23},		//Polarity CTRL00: [5] pclk: 1=falling, [3] Gate PCLK under VSYNC, [2] Gate PCLK under HREF, [1] HREF polarity 1=active high, [0] VSYNC polarity 0=active low
-	//{0x4740, 0x01},		//Polarity CTRL00: [5] pclk: 0=rising, [3] Gate PCLK under VSYNC, [2] Gate PCLK under HREF, [1] HREF polarity 0=active low, [0] VSYNC polarity 1=active high
+	{0x4740, 0x03},		//Polarity CTRL00: [5] pclk: 0=rising, [3] Gate PCLK under VSYNC, [2] Gate PCLK under HREF, [1] HREF polarity 1=active high, [0] VSYNC polarity 0=active low
 	{0x501e, 0x2a},		//RGB dither control: [6] from 0=register/1=system control, [5:4] R channel register control when 0x501E = 0: 2=RGB565/555, [3:2] G channel, [1:0] B channel
 	{0x5002, 0x78},		//isp control 02: [7] 1= thumbnail scaling enable, [4] 1= dithering enable, [3] 1= YUV to RGB enable, [2] 1=horizontal subsampling enable
 	{0x501f, 0x01},		//format mux control: [5] swap Y and UV of external camera enable, [4] UV selection, [3] UV fixed enable, [2:0] format selection: 1=ISP RGB

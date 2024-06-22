@@ -49,9 +49,69 @@
 HAL_StatusTypeDef KameraInit(void)
 {
 	HAL_StatusTypeDef err = 0;
+	GPIO_InitTypeDef gpio_init_structure;
 
 	__HAL_RCC_DCMI_CLK_ENABLE();
 	__HAL_RCC_DMA1_CLK_ENABLE();
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOD_CLK_ENABLE();
+	__HAL_RCC_GPIOE_CLK_ENABLE();
+	__HAL_RCC_GPIOF_CLK_ENABLE();
+
+
+	// DCMI GPIO jako alternate function
+	gpio_init_structure.Pin       = GPIO_PIN_4 | GPIO_PIN_6;	//PA4=HREF, PA6=PCLK
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_NOPULL;
+	gpio_init_structure.Speed     = GPIO_SPEED_LOW;
+	gpio_init_structure.Alternate = GPIO_AF13_DCMI;
+	HAL_GPIO_Init(GPIOA, &gpio_init_structure);
+
+	gpio_init_structure.Pin       = GPIO_PIN_7;			//PB7=VSYNC
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_NOPULL;
+	gpio_init_structure.Speed     = GPIO_SPEED_LOW;
+	gpio_init_structure.Alternate = GPIO_AF13_DCMI;
+	HAL_GPIO_Init(GPIOB, &gpio_init_structure);
+
+	gpio_init_structure.Pin       = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;	//PC6=DOUT2, PC7=DOUT3, PC8=DOUT4, PC9=DOUT5
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_NOPULL;
+	gpio_init_structure.Speed     = GPIO_SPEED_LOW;
+	gpio_init_structure.Alternate = GPIO_AF13_DCMI;
+	HAL_GPIO_Init(GPIOC, &gpio_init_structure);
+
+	gpio_init_structure.Pin       = GPIO_PIN_3;			//PD3=DOUT7
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_NOPULL;
+	gpio_init_structure.Speed     = GPIO_SPEED_LOW;
+	gpio_init_structure.Alternate = GPIO_AF13_DCMI;
+	HAL_GPIO_Init(GPIOD, &gpio_init_structure);
+
+	gpio_init_structure.Pin       = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;	//PE4=DOUT6, PE5=DOUT8, PE6=DOUT9
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_NOPULL;
+	gpio_init_structure.Speed     = GPIO_SPEED_LOW;
+	gpio_init_structure.Alternate = GPIO_AF13_DCMI;
+	HAL_GPIO_Init(GPIOE, &gpio_init_structure);
+
+	gpio_init_structure.Pin       = GPIO_PIN_13 | GPIO_PIN_14;	//PF14=I2C4_SCL, PF15=I2C4_SDA
+	gpio_init_structure.Mode      = GPIO_MODE_AF_PP;
+	gpio_init_structure.Pull      = GPIO_PULLUP;
+	gpio_init_structure.Speed     = GPIO_SPEED_MEDIUM;
+	gpio_init_structure.Alternate = GPIO_AF4_I2C4;
+	HAL_GPIO_Init(GPIOF, &gpio_init_structure);
+
+	//ustaw i włącz przerwania
+	HAL_NVIC_SetPriority(DCMI_IRQn, 0x0F, 0);
+	HAL_NVIC_EnableIRQ(DCMI_IRQn);
+
+	HAL_NVIC_SetPriority(DMA1_Stream0_IRQn, 0x0F, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Stream0_IRQn);
+
 
 	//zegar timera taktowany jest z APB1 = 120MHz, prescaler = 0
 	//kamera wymaga zegara 24MHz (6-27MHz), więc zegar trzeba podzielić na 5
@@ -519,7 +579,8 @@ HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t r
 	Wyslij_I2C_Kamera(0x380a, (sWysokosc & 0xFF00)>>8);		//Timing DVPVO: [3:0] output vertical height high byte [11:8]
 	Wyslij_I2C_Kamera(0x380b, (sWysokosc & 0x00FF));		//Timing DVPVO: [7:0] output vertical height low byte [7:0]
 
-	Wyslij_I2C_Kamera(0x4300, rej);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
+	//Wyslij_I2C_Kamera(0x4300, rej);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
+	Wyslij_I2C_Kamera(0x4740, 0x03);	//Polarity CTRL00: [5] pclk: 1=falling, [3] Gate PCLK under VSYNC, [2] Gate PCLK under HREF, [1] HREF polarity 1=active high, [0] VSYNC polarity 0=active low
 
 	//Konfiguracja transferu DMA z DCMI do pamięci
 	return HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
