@@ -21,9 +21,9 @@
 #define KAMERA_WYPELN_PWM		(KAMERA_DZIELNIK_ZEGARA / 2)	//wypełnienie PWM 50%
 
 
-uint32_t nBuforKamery[ROZM_BUF32_KAM];
-uint8_t chBuforCB[ROZM_BUF_CB];
-uint8_t chBuforCKraw[ROZM_BUF_CB];
+uint32_t nBuforKamery[ROZM_BUF32_KAM] __attribute__((section(".BuforyObrazu_AXI")));
+uint8_t chBuforCB[ROZM_BUF_CB]  __attribute__((section(".BuforyObrazu_AXI")));
+uint8_t chBuforCKraw[ROZM_BUF_CB]  __attribute__((section(".BuforyObrazu_AXI")));
 uint16_t sLicznikLiniiKamery;
 struct st_KonfKam KonfKam;
 

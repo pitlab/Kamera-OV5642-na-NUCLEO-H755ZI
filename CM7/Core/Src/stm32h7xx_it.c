@@ -61,9 +61,6 @@ extern UART_HandleTypeDef huart7;
 extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim6;
 
-
-volatile uint8_t chObrazGotowy;
-
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */

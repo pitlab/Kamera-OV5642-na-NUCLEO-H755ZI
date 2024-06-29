@@ -24,7 +24,7 @@ unsigned char chOdswiez;	//licznik od�wie�ania ekranu
 unsigned char chRysujRaz = 1;	//flaga informująca o konieczności jednorazowego narysowania statycznych elementów ekranu
 //unsigned char chSelChan;	//wybrany kana�
 //unsigned char chMode;		//tryb pracy
-unsigned short sFractalBuf[DISP_X_SIZE*DISP_Y_SIZE];
+unsigned short sFractalBuf[DISP_X_SIZE*DISP_Y_SIZE]  __attribute__((section(".BuforyObrazu_AXI")));
 float fReal, fImag;
 unsigned char chHistogram[4][DISP_X_SIZE];	//histogram na ca�� szeroko�� ekranu
 float fZoom, fX, fY;

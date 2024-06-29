@@ -65,15 +65,6 @@ unsigned char Menu(unsigned char chPozycja)
 		sprintf(chNapis, "Pomocy, kabelki!");
 		print(chNapis, 20, 200, 0);
 
-
-#define TP_KAM_SET2		1
-#define TP_HIST_RGB		2
-#define TP_HIST_BIT		3
-#define TP_KAM_CB		4
-#define TP_DET_KRAW		5
-#define TP_
-
-
 		/*sprintf(chNapis, "Kasuj flash");
 		print(chNapis, 180, 40, 0);
 		sprintf(chNapis, "Nic 1");

@@ -794,9 +794,6 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN 5 */
 	extern volatile uint8_t chObrazGotowy;
-	/*uint8_t chRejKam[2] ={0x61, 0x6F};
-	uint8_t chWskRej = 0;
-	uint8_t chWskLicz = 0; */
   /* Infinite loop */
 	Menu(chPozycjaMenu);
 	for(;;)
@@ -978,56 +975,132 @@ void StartDefaultTask(void const * argument)
 }
 
 
- /* MPU Configuration */
 
+////////////////////////////////////////////////////////////////////////////////
+// Konfiguruje Memory Protection Unit. Czytaj Hardware Manual (PM0253)
+//
+// Parametry: nic
+// Zwraca: nic
+////////////////////////////////////////////////////////////////////////////////
 void MPU_Config(void)
 {
-  MPU_Region_InitTypeDef MPU_InitStruct = {0};
+	MPU_Region_InitTypeDef MPU_InitStruct = {0};
 
-  /* Disables the MPU */
-  HAL_MPU_Disable();
+	/* Disables the MPU */
+	HAL_MPU_Disable();
 
-  /** Initializes and configures the Region and the memory to be protected
-  */
-  MPU_InitStruct.Enable = MPU_REGION_ENABLE;
-  MPU_InitStruct.Number = MPU_REGION_NUMBER0;
-  MPU_InitStruct.BaseAddress = 0x0;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_4GB;
-  MPU_InitStruct.SubRegionDisable = 0x87;
-  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
-  MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
-  MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
-  MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
-  MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
-  MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+	//Wyłącz dostęp do nieuzywanych zakresów pamięci
+	MPU_InitStruct.Enable = MPU_REGION_ENABLE;
+	MPU_InitStruct.Number = MPU_REGION_NUMBER0;
+	MPU_InitStruct.BaseAddress = 0x0;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_4GB;
+	MPU_InitStruct.SubRegionDisable = 0x87;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;				//Strongly-ordered, shareable
+	MPU_InitStruct.AccessPermission = MPU_REGION_NO_ACCESS;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;			//współdzielone między procesory
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;		//nie ma dostępu do cache
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+    //DTCM D1: zmienne krytyczne, rozmiar=0x20000
+	MPU_InitStruct.Number = MPU_REGION_NUMBER1;
+	MPU_InitStruct.BaseAddress = 0x20000000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_128KB;
+	MPU_InitStruct.SubRegionDisable = 0x87;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_NOT_SHAREABLE;			//tylko procesor M7
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  /** Initializes and configures the Region and the memory to be protected
-  */
-  MPU_InitStruct.Number = MPU_REGION_NUMBER1;
-  MPU_InitStruct.BaseAddress = 0x30020000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_128KB;
-  MPU_InitStruct.SubRegionDisable = 0x0;
-  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
-  MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
-  MPU_InitStruct.IsShareable = MPU_ACCESS_NOT_SHAREABLE;
+	//SRAM_AXI_D1: dane i bufory, stos, sterta, rozmiar=0x80000
+	MPU_InitStruct.Number = MPU_REGION_NUMBER2;
+	MPU_InitStruct.BaseAddress = 0x24000000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_512KB;
+	MPU_InitStruct.SubRegionDisable = 0x87;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;					//Strongly-ordered, shareable
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+	MPU_InitStruct.SubRegionDisable = 0x87;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;					//Device, shareable
+	MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_CACHEABLE;				//tylko ten obszar ma dostęp do cache
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  HAL_MPU_ConfigRegion(&MPU_InitStruct);
+	//SRAM_AHB1_D2: bufory DMA
+	MPU_InitStruct.Number = MPU_REGION_NUMBER3;
+	MPU_InitStruct.BaseAddress = 0x30000000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_128B;
+	MPU_InitStruct.SubRegionDisable = 0x87;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_ENABLE;
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_NOT_SHAREABLE;			//tylko procesor M7
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  /** Initializes and configures the Region and the memory to be protected
-  */
-  MPU_InitStruct.Number = MPU_REGION_NUMBER2;
-  MPU_InitStruct.BaseAddress = 0x30040000;
-  MPU_InitStruct.Size = MPU_REGION_SIZE_256B;
-  MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;
-  MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;
-  MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+	//SRAM_AHB2_D2: bufory DMA, bufory ethernetu,  stos lwIP
+	MPU_InitStruct.Number = MPU_REGION_NUMBER4;
+	MPU_InitStruct.BaseAddress = 0x30020000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_128KB;
+	MPU_InitStruct.SubRegionDisable = 0x0;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;					//Device, shareable
+	MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_NOT_SHAREABLE;			//tylko procesor M7
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
-  HAL_MPU_ConfigRegion(&MPU_InitStruct);
-  /* Enables the MPU */
-  HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+	//SRAM_AHB3_D2: deskryptory ethernet 2 x 256B
+	MPU_InitStruct.Number = MPU_REGION_NUMBER5;
+	MPU_InitStruct.BaseAddress = 0x30040000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_512B;
+	MPU_InitStruct.SubRegionDisable = 0x0;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;					//Strongly-ordered, shareable
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;				//współdzielone między procesory
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
 
+	//SRAM_AHB3_D2: bufory USB, współdzielenie danych, rozmiar=0x8000 (32k)
+	MPU_InitStruct.Number = MPU_REGION_NUMBER6;
+	MPU_InitStruct.BaseAddress = 0x30040200;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_16KB;
+	MPU_InitStruct.SubRegionDisable = 0x0;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;					//Strongly-ordered, shareable
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;				//współdzielone między procesory
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_BUFFERABLE;
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+	//SRAM_AHB4_D3: backup w czasie stabdby, współdzielenie danych między rdzeniami, rozmiar=0x10000 (64k)
+	MPU_InitStruct.Number = MPU_REGION_NUMBER6;
+	MPU_InitStruct.BaseAddress = 0x38000000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_64KB;
+	MPU_InitStruct.SubRegionDisable = 0x0;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_ENABLE;
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;				//współdzielone między procesory
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+	//BACKUP: backup bateryjny, rozmiar=0x1000
+	MPU_InitStruct.Number = MPU_REGION_NUMBER8;
+	MPU_InitStruct.BaseAddress = 0x38800000;
+	MPU_InitStruct.Size = MPU_REGION_SIZE_4KB;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL0;					//Strongly-ordered, shareable
+	MPU_InitStruct.SubRegionDisable = 0x0;
+	MPU_InitStruct.TypeExtField = MPU_TEX_LEVEL1;
+	MPU_InitStruct.AccessPermission = MPU_REGION_FULL_ACCESS;
+	MPU_InitStruct.DisableExec = MPU_INSTRUCTION_ACCESS_DISABLE;
+	MPU_InitStruct.IsShareable = MPU_ACCESS_SHAREABLE;				//współdzielone między procesory
+	MPU_InitStruct.IsCacheable = MPU_ACCESS_NOT_CACHEABLE;
+	MPU_InitStruct.IsBufferable = MPU_ACCESS_NOT_BUFFERABLE;
+	HAL_MPU_ConfigRegion(&MPU_InitStruct);
+
+	/* Enables the MPU */
+	HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 }
 
 /**

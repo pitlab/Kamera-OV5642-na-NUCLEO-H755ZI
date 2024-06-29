@@ -117,7 +117,7 @@ extern void FraktalDemo(void);
 extern void RysujMenuTimer(unsigned short sCzas);
 extern void WyswietlPomoc(void);
 extern HAL_StatusTypeDef KameraInit(void);
-extern  uint8_t chNowyObrazKamery;
+extern volatile uint8_t chNowyObrazKamery;
 extern void RAW2RGB(uint32_t *nBufKamery, uint16_t *sBufLCD);
 extern HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc);
 extern HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej);

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// AutoPitLot v3.0
-// Moduł obsługi kamery
+// AutoPitLot v2.0
+// Moduł obsługi kamery OV5642
 //
 // (c) PitLab 2024
 // http://www.pitlab.pl
@@ -27,7 +27,7 @@
 // 18 RSV		---
 // 19 DOUT1		---
 // 20 DOUT0		---
-//
+////////////////////////////////////////////////////////////////////////////////
 
 //Zegar taktujący kamerę XCLK to 120MHz / 6 = 20MHz. Z zegarem 120/5 = 24MHz kamera podpięta na kabelkach nie chce już pracować
 //Wypełnienie zegara (PWM):
@@ -292,32 +292,7 @@ HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc)
 	return HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
 }
 
-HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej)
-{
-	HAL_StatusTypeDef err;
 
-	err = HAL_DCMI_Stop(&hdcmi);
-	if (err)
-		return err;
-
-	//skalowanie obrazu
-	Wyslij_I2C_Kamera(0x5001, 0x7F);	//ISP control 01: [7] Special digital effects, [6] UV adjust enable, [5]1=Vertical scaling enable, [4]1=Horizontal scaling enable, [3] Line stretch enable, [2] UV average enable, [1] color matrix enable, [0] auto white balance AWB
-	Wyslij_I2C_Kamera(0x3804, 0x05);	//Timing HW: [3:0] Horizontal width high byte 0x500=1280,  0x280=640, 0x140=320 (scale input}
-	Wyslij_I2C_Kamera(0x3805, 0x00);	//Timing HW: [7:0] Horizontal width low byte
-	Wyslij_I2C_Kamera(0x3806, 0x03);	//Timing VH: [3:0] HREF vertical height high byte 0x3C0=960, 0x1E0=480, 0x0F0=240
-	Wyslij_I2C_Kamera(0x3807, 0xC0);	//Timing VH: [7:0] HREF vertical height low byte
-
-	//ustaw rozmiar obrazu
-	Wyslij_I2C_Kamera(0x3808, (sSzerokosc & 0xFF00)>>8);	//Timing DVPHO: [3:0] output horizontal width high byte [11:8]
-	Wyslij_I2C_Kamera(0x3809, (sSzerokosc & 0x00FF));		//Timing DVPHO: [7:0] output horizontal width low byte [7:0]
-	Wyslij_I2C_Kamera(0x380a, (sWysokosc & 0xFF00)>>8);		//Timing DVPVO: [3:0] output vertical height high byte [11:8]
-	Wyslij_I2C_Kamera(0x380b, (sWysokosc & 0x00FF));		//Timing DVPVO: [7:0] output vertical height low byte [7:0]
-
-	Wyslij_I2C_Kamera(0x4300, rej);	//format control [7..4] 6=RGB656, [3..0] 1={R[4:0], G[5:3]},{G[2:0}, B[4:0]}
-
-	//Konfiguracja transferu DMA z DCMI do pamięci
-	return HAL_DCMI_Start_DMA(&hdcmi, DCMI_MODE_SNAPSHOT, (uint32_t)nBuforKamery, ROZM_BUF32_KAM);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Odczytuje zadany rejestr kamery i zwraca do wyższych warstw oprogramowania
@@ -492,11 +467,12 @@ void RAW2RGB(uint32_t *nBufKamery, uint16_t *sBufLCD)
 	}
 }
 
-// set the output size
+
+
 ////////////////////////////////////////////////////////////////////////////////
-// konwersja bufora w formacie RAW na RGB656
+// set the output size
 // Parametry:
-//  nBuforKamery - wskaźnik na bufor danych do konwersji
+//
 // Zwraca: nic
 ////////////////////////////////////////////////////////////////////////////////
 void OV5642_OutSize_Set(uint16_t offX, uint16_t offY, uint16_t width, uint16_t height)

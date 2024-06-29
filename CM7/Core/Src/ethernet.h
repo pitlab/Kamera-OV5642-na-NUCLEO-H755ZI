@@ -8,9 +8,10 @@
 #ifndef SRC_ETHERNET_H_
 #define SRC_ETHERNET_H_
 
-#include "stm32h755xx.h"
 #include "stm32h7xx_hal.h"
-#include "stm32h7xx_hal_eth.h"
+#include "stm32h7xx_nucleo.h"
+//#include "stm32h755xx.h"
+//#include "stm32h7xx_hal_eth.h"
 
 //static uint8_t chRxBufEth[ETH_RX_DESC_CNT][ETH_MAX_PACKET_SIZE]    __attribute__ ((aligned (4)));
 

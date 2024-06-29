@@ -828,10 +828,10 @@ const struct sensor_reg OV5642_RGB_QVGA[]  =
 	{0x3810 ,0x40},
 
 	//Image windowing registers
-	{0x3800 ,0x04},		//Timing control HS: HREF Horizontal Start Point high byte [11:8]	(2592-320)/2=1136=0x470
+	{0x3800, 0x04},		//Timing control HS: HREF Horizontal Start Point high byte [11:8]	(2592-320)/2=1136=0x470
 	{0x3801, 0x70},		//Timing control HS: HREF Horizontal Start Point low byte [7:0]
-	{0x3802 ,0x03},		//Timing control VS: HREF Vertical Start Point high byte [11:8]		(1944-240)/2=852=0x354
-	{0x3803 ,0x54},		//Timing control VS: HREF Vertical Start Point low byte [7:0]
+	{0x3802, 0x03},		//Timing control VS: HREF Vertical Start Point high byte [11:8]		(1944-240)/2=852=0x354
+	{0x3803, 0x54},		//Timing control VS: HREF Vertical Start Point low byte [7:0]
 
 	//scaling - skalowanie rozmiaru max do 16 razy mniejszego
 	{0x5001 ,0x7F},		//ISP control 01: [7] Special digital effects, [6] UV adjust enable, [5]1=Vertical scaling enable, [4]1=Horizontal scaling enable, [3] Line stretch enable, [2] UV average enable, [1] color matrix enable, [0] auto white balance AWB

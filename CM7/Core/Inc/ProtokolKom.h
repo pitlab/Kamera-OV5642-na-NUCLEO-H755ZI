@@ -8,10 +8,11 @@
 #ifndef INC_PROTOKOLKOM_H_
 #define INC_PROTOKOLKOM_H_
 
-#include "sys_def.h"
+#include "stm32h7xx_hal.h"
 #include "stm32h7xx_nucleo.h"
 #include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
 #include "konfiguracja.h"
+#include "sys_def.h"
 
 #define ROZM_BUF_KOL	32	//rozmiar musi być potęgą 2 aby zapętlić bufor operacją AND
 

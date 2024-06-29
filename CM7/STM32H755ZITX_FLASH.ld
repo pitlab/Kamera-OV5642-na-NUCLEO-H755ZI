@@ -36,7 +36,7 @@
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = ORIGIN(RAM_D1) + LENGTH(RAM_D1); /* end of "RAM_D1" Ram type memory */
+_estack = ORIGIN(SRAM_AXI_D1) + LENGTH(SRAM_AXI_D1); /* end of "RAM_D1" Ram type memory */
 
 _Min_Heap_Size = 0x200; /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -44,12 +44,15 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM_D1 (xrw)   : ORIGIN = 0x24000000, LENGTH =  512K
-  FLASH   (rx)   : ORIGIN = 0x08000000, LENGTH = 1024K    /* Memory is divided. Actual start is 0x08000000 and actual length is 2048K */
-  DTCMRAM (xrw)  : ORIGIN = 0x20000000, LENGTH = 128K
-  RAM_D2 (xrw)   : ORIGIN = 0x30000000, LENGTH = 288K
-  RAM_D3 (xrw)   : ORIGIN = 0x38000000, LENGTH = 64K
-  ITCMRAM (xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
+  ITCMRAM		(xrw)  : ORIGIN = 0x00000000, LENGTH = 64K
+  FLASH			(rx)   : ORIGIN = 0x08000000, LENGTH = 1024K    /* Memory is divided. Actual start is 0x08000000 and actual length is 2048K */
+  DTCMRAM		(xrw)  : ORIGIN = 0x20000000, LENGTH = 128K		/* DTCM D1: zmienne krytyczne, rozmiar=0x20000 */
+  SRAM_AXI_D1	(xrw)  : ORIGIN = 0x24000000, LENGTH = 512K  	/* AXI-SRAM D1: dane i bufory, stos, sterta, rozmiar=0x80000 */
+  SRAM_AHB1_D2	(xrw)  : ORIGIN = 0x30000000, LENGTH = 128K  	/* AHB-SRAM D2: bufory DMA, kod dla M4 */
+  SRAM_AHB2_D2 	(xrw)  : ORIGIN = 0x30020000, LENGTH = 128K		/* AHB-SRAM D2: bufory DMA, dane dla M4 */
+  SRAM_AHB3_D2	(xrw)  : ORIGIN = 0x30040000, LENGTH = 32K		/* AHB-SRAM D2: bufory ethernet, USB, współdzielenie danych*/
+  SRAM_AHB4_D3	(xrw)  : ORIGIN = 0x38000000, LENGTH = 64K		/* AHB-SRAM D3: backup w czasie stabdby, współdzielenie danych między rdzeniami, rozmiar=0x10000 */
+  BACKUP  (rw)   : ORIGIN = 0x38800000, LENGTH = 4K
 }
 
 /* Sections */
@@ -148,7 +151,7 @@ SECTIONS
 
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
-  } >RAM_D1 AT> FLASH
+  } >SRAM_AXI_D1 AT> FLASH
 
   /* Uninitialized data section into "RAM" Ram type memory */
   . = ALIGN(4);
@@ -164,7 +167,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM_D1
+  } >SRAM_AXI_D1
 
   /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
   ._user_heap_stack :
@@ -175,20 +178,57 @@ SECTIONS
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
     . = ALIGN(8);
-  } >RAM_D1
+  } >SRAM_AXI_D1
 
-.lwip_sec (NOLOAD) :
+/* Sekcja zmiennych krytycznych w pamięci DTCM 128K*/
+.zmienneDTCM (NOLOAD) :
+  {
+    *(.Zmienne_DTCM)  
+  } >DTCMRAM
+
+/* Sekcja buforów w pamięci z dostępem do magistrali AXI 512K*/
+.bufory_AXI (NOLOAD) :
+  {
+    *(.BuforyObrazu_AXI)  
+  } >SRAM_AXI_D1
+
+/* Sekcja buforów w pamięci SRAM_AHB1_D2 128K*/
+.bufory_AHB1_D2 (NOLOAD) :
+  {
+    *(.Bufory_D1)  
+  } >SRAM_AHB1_D2
+
+/* Sekcja buforów w pamięci SRAM_AHB2_D2 128K*/
+.bufory_AHB2_D2 (NOLOAD) :
+  {
+    *(.Bufory_D2)  
+  } >SRAM_AHB2_D2
+  
+/* Sekcja buforów ethernetu SRAM_AHB3_D2 32kB */
+.bufory_AHB3_D2 (NOLOAD) :
   {
     . = ABSOLUTE(0x30040000);
     *(.RxDecripSection) 
     
-    . = ABSOLUTE(0x30040060);
+    . = ABSOLUTE(0x30040100);
     *(.TxDecripSection)
     
     . = ABSOLUTE(0x30040200);
     *(.Rx_PoolSection)  
-  } >RAM_D2
+  } >SRAM_AHB3_D2
+
+/* Sekcja buforów w pamięci SRAM_D4 aktywnych również w standby, 64k*/
+.bufory_AHB4_D2 (NOLOAD) :
+  {
+    *(.Bufory_D4)  
+  } >SRAM_AHB4_D3  
   
+ /* Sekcja backup podtrzymywana baterią, 4k*/
+.backup (NOLOAD) :
+  {
+    *(.Backup)  
+  } >BACKUP
+     
   /* Remove information from the compiler libraries */
   /DISCARD/ :
   {

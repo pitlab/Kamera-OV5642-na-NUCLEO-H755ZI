@@ -32,9 +32,9 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
- uint8_t chNowyObrazKamery;
+ volatile uint8_t chNowyObrazKamery;
  volatile uint32_t nCzasSystemowy;
-
+ volatile uint8_t chObrazGotowy;
  extern uint16_t sMenuTimer;
 /* USER CODE END ET */
 
