@@ -54,7 +54,7 @@ void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmi
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wykonuje splot Robertsa do detekcji krawędzi na obrazie czarno-białym
+// Wykonuje splot Robertsa do detekcji krawędzi na obrazie monochromatycznym
 // Są dwie macierze splotu robiace detekcję w poziomie i pionie
 // [1  0] [ 0 1]
 // [0 -1] [-1 0]
@@ -69,23 +69,28 @@ void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmi
 void DetekcjaKrawedziRoberts(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog)
 {
 	uint16_t x, y;
+	uint32_t yszer;
 	int pixWe[4], pixWy;
+	uint8_t *wiersz;
 
 	*obrazWy = 0;	//inicjuj pierwszy piksel, bo pętla go nie ruszy
 	for (y=0; y<wysokosc-1; y++)
 	{
+		yszer = y*szerokosc;
 		for (x=1; x<szerokosc-1; x++)
 		{
-			pixWe[0] = *(obrazWe + (y*(szerokosc)) + x);
-			pixWe[1] = *(obrazWe + (y*(szerokosc)) + x+1);
+			wiersz = obrazWe + yszer + x;
+			pixWe[0] = *(wiersz);
+			pixWe[1] = *(wiersz + 1);
 
-			pixWe[2] = *(obrazWe + ((y+1)*szerokosc) + x);
-			pixWe[3] = *(obrazWe + ((y+1)*szerokosc) + x+1);
+			wiersz = obrazWe + ((y+1)*szerokosc) + x;
+			pixWe[2] = *(wiersz);
+			pixWe[3] = *(wiersz + 1);
 
 			pixWy = abs(pixWe[0] - pixWe[3]) + abs(pixWe[2] - pixWe[1]);
 			if (pixWy <= prog)
 				pixWy = 0;
-			*(obrazWy + y*szerokosc + x) = pixWy;
+			*(obrazWy + yszer + x) = pixWy;
 		}
 	}
 }
@@ -93,55 +98,65 @@ void DetekcjaKrawedziRoberts(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerok
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Wykonuje splot Sobela do detekcji krawędzi na obrazie czarno-białym
+// Wykonuje splot Sobela do detekcji krawędzi na obrazie monochromatycznym
 // Są dwie macierze splotu robiace detekcję w poziomie i pionie
-// [-1 0 1] [ 1  2  1]
-// [-2 0 2] [ 0  0  0]
-// [-1 0 1] [-1 -2 -1]
+// [P0, P1, P2]   [-1 0 1]   [ 1  2  1]
+// [P3, P4, P5] x [-2 0 2] x [ 0  0  0]
+// [P6, P7, P8]   [-1 0 1]   [-1 -2 -1]
 // Parametry:
 // [we] obrazWe* - wskaźnik na bufor[rozmiar] z obrazem czarno-białym
 // [wy] obrazWy* - wskaźnik na bufor[rozmiar] z obrazem po detekcji
-// szerokosc - szerokość obrazu (ilość pikseli w wierszu)
-// wysokosc - wysokość obrazu (ilość wierszy)
+// [we] szerokosc - szerokość obrazu (ilość pikseli w wierszu)
+// [we] wysokosc - wysokość obrazu (ilość wierszy)
+// [we] prog - wartość progująca
 // Zwraca: nic
 ////////////////////////////////////////////////////////////////////////////////
-void DetekcjaKrawedzi(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc)
+void DetekcjaKrawedziSobel(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog)
 {
 	uint16_t x, y;
-	uint8_t pixWe[9], pixWy[9];
-
-	//inicjuj dane wyjściowe, bo będziemy dodawali do tego
-	for (uint32_t n=0; n<szerokosc*wysokosc; n++)
-		*(obrazWy + n) = 0;
+	uint8_t *wiersz;
+	uint8_t pix, pixWe[9];//, pixWy[9];
+	uint32_t yszer, ym1szer, yp1szer;	//Y*szerokosc, Y minus 1 * szerokosc, Y plus 1 * szerokosc
 
 	for (y=1; y<wysokosc-1; y++)
 	{
+		yszer = y * szerokosc;
+		ym1szer = (y-1) * szerokosc;
+		yp1szer = (y+1) * szerokosc;
 		for (x=1; x<szerokosc-1; x++)
 		{
-			pixWe[0] = *(obrazWe + (y*(szerokosc-1)) + x - 1);
-			pixWe[1] = *(obrazWe + (y*(szerokosc-1)) + x);
-			pixWe[2] = *(obrazWe + (y*(szerokosc-1)) + x + 1);
+			wiersz = obrazWe + ym1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
 
-			pixWe[3] = *(obrazWe + (y*(szerokosc)) + x - 1);
-			pixWe[4] = *(obrazWe + (y*(szerokosc)) + x);
-			pixWe[5] = *(obrazWe + (y*(szerokosc)) + x + 1);
+			wiersz = obrazWe + yszer + x;
+			pixWe[3] = *(wiersz - 1);
+			pixWe[4] = *(wiersz);
+			pixWe[5] = *(wiersz + 1);
 
-			pixWe[6] = *(obrazWe + (y*(szerokosc+1)) + x - 1);
-			pixWe[7] = *(obrazWe + (y*(szerokosc+1)) + x);
-			pixWe[8] = *(obrazWe + (y*(szerokosc+1)) + x + 1);
+			wiersz = obrazWe + yp1szer + x;
+			pixWe[6] = *(wiersz - 1);
+			pixWe[7] = *(wiersz);
+			pixWe[8] = *(wiersz + 1);
 
-			//mnożenie przez obie macierze: wiersz obrazu * kolumna macierzy splotu
-			pixWy[0] = ((pixWe[0] * -1) + (pixWe[1] * -2) + (pixWe[2] * 1))  + (pixWe[0] + (pixWe[0] * -1));
-			pixWy[1] = ((pixWe[0] *  2) + (pixWe[2] * -2));
-			pixWy[2] = (pixWe[0] + (pixWe[1] * 2)  + pixWe[2]) + (pixWe[0] + (pixWe[2] * -1)) ;
-
-			pixWy[3] = ((pixWe[0] * -1) + (pixWe[1] * -2) + (pixWe[2] * 1));
-
-			pixWy[6] = pixWe[0] * 1 + pixWe[2];
-			pixWy[7] = pixWe[1] * 2 + pixWe[2];
-			pixWy[8] = pixWe[2] * 1 + pixWe[2];
+			pix = abs(pixWe[2] - pixWe[0] + pixWe[8] - pixWe[6]  + (2 * (pixWe[5] - pixWe[3]))) +
+			      abs(pixWe[0] - pixWe[6] + pixWe[2] - pixWe[8]  + (2 * (pixWe[1] - pixWe[7])));
+			pix >>= 2;			//normalizacja dzielac przez 4
+			if (pix <= prog)	//progowanie
+				pix = 0;
+			*(obrazWy + x + yszer) = pix;
 		}
 	}
+
+	//inicjuj pierwszy wiersz, bo algorytm tam nie sięgnie
+	for (x=0; x<szerokosc; x++)
+		*(obrazWy + x) = 0;
+
+	//wypełnienie ostatniego wiersza
+	yszer = (wysokosc-1)*szerokosc;
+	for (x=0; x<szerokosc; x++)
+		*(obrazWy + yszer + x) = 0;
 }
 
 
@@ -236,3 +251,206 @@ void HistogramRGB565(uint8_t *obrazRGB565, uint8_t *histR, uint8_t *histG, uint8
 		*(histG+n) = temp;
 	}
 }
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Progowanie obrazu mnochromatycznego
+// Parametry:
+// [we/wy] obraz* - wskaźnik na bufor[rozmiar] z obrazem
+// [we] prog - wartość progu uznania za białe
+// [we] rozmiar - ilość pikseli do analizy
+// Zwraca: nic
+////////////////////////////////////////////////////////////////////////////////
+void Progowanie(uint8_t *obraz, uint8_t prog, uint32_t rozmiar)
+{
+	for (uint32_t n=0; n<rozmiar; n++)
+	{
+		if (*(obraz + n) > prog)
+			*(obraz + n) = 0x7F;
+		else
+			*(obraz + n) = 0x00;
+	}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Dylatacja morfologiczna. Jeżeli chociaż jeden z piskeli sąsiadujacych ma wartość 1 to punkt centralny też.
+// Parametry:
+// [we] obrazWe* - wskaźnik na bufor[rozmiar] z obrazem wejściowym
+// [wy] obrazWy* - wskaźnik na bufor[rozmiar] z obrazem wyjściowym
+// [we] szerokosc - szerokość obrazu (ilość pikseli w wierszu)
+// [we] wysokosc - wysokość obrazu (ilość wierszy)
+// [we] prog - wartość progująca akcję przyrostu
+// Zwraca: nic
+////////////////////////////////////////////////////////////////////////////////
+void Dylatacja(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog)
+{
+	uint16_t x, y; //, n;
+	uint8_t *wiersz;
+	uint8_t pixWe[3];
+	uint32_t yszer, ym1szer, yp1szer;	//Y*szerokosc, Y minus 1 * szerokosc, Y plus 1 * szerokosc
+
+	for (y=1; y<wysokosc-1; y++)
+	{
+		yszer = y * szerokosc;
+		ym1szer = (y-1) * szerokosc;
+		yp1szer = (y+1) * szerokosc;
+		for (x=1; x<szerokosc-1; x++)
+		{
+			wiersz = obrazWe + ym1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = 0x7F;
+				continue;
+			}
+
+			wiersz = obrazWe + yszer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = 0x7F;
+				continue;
+			}
+
+			wiersz = obrazWe + yp1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = 0x7F;
+				continue;
+			}
+			*(obrazWy + yszer + x) = 0;
+		}
+	}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Erozja morfologiczna. Jeżeli chociaż jeden z piskeli sąsiadujacych ma wartość 0 to punkt centralny też.
+// Parametry:
+// [we] obrazWe* - wskaźnik na bufor[rozmiar] z obrazem wejściowym
+// [wy] obrazWy* - wskaźnik na bufor[rozmiar] z obrazem wyjściowym
+// [we] szerokosc - szerokość obrazu (ilość pikseli w wierszu)
+// [we] wysokosc - wysokość obrazu (ilość wierszy)
+// [we] prog - wartość progująca akcję przyrostu
+// Zwraca: nic
+////////////////////////////////////////////////////////////////////////////////
+void Erozja(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog)
+{
+	uint16_t x, y;
+	uint8_t *wiersz;
+	uint8_t pixWe[3];
+	uint32_t yszer, ym1szer, yp1szer;	//Y*szerokosc, Y minus 1 * szerokosc, Y plus 1 * szerokosc
+
+	for (y=1; y<wysokosc-1; y++)
+	{
+		yszer = y * szerokosc;
+		ym1szer = (y-1) * szerokosc;
+		yp1szer = (y+1) * szerokosc;
+		for (x=1; x<szerokosc-1; x++)
+		{
+			wiersz = obrazWe + ym1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] <= prog) || (pixWe[1] <= prog)  || (pixWe[2] <= prog))
+			{
+				*(obrazWy + yszer + x) = 0x00;
+				continue;
+			}
+
+			wiersz = obrazWe + yszer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] <= prog) || (pixWe[1] <= prog)  || (pixWe[2] <= prog))
+			{
+				*(obrazWy + yszer + x) = 0x00;
+				continue;
+			}
+
+			wiersz = obrazWe + yp1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] <= prog) || (pixWe[1] <= prog)  || (pixWe[2] <= prog))
+			{
+				*(obrazWy + yszer + x) = 0x00;
+				continue;
+			}
+			*(obrazWy + yszer + x) = 0x7F;
+		}
+	}
+}
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Odszumianie jako wariant erozji. Usuń piksel jeżeli nie ma żadnego sąsiada.
+// Parametry:
+// [we] obrazWe* - wskaźnik na bufor[rozmiar] z obrazem wejściowym
+// [wy] obrazWy* - wskaźnik na bufor[rozmiar] z obrazem wyjściowym
+// [we] szerokosc - szerokość obrazu (ilość pikseli w wierszu)
+// [we] wysokosc - wysokość obrazu (ilość wierszy)
+// [we] prog - wartość progująca akcję przyrostu
+// Zwraca: nic
+////////////////////////////////////////////////////////////////////////////////
+void Odszumianie(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog)
+{
+	uint16_t x, y;
+	uint8_t *wiersz;
+	uint8_t pix, pixWe[3];
+	uint32_t yszer, ym1szer, yp1szer;	//Y*szerokosc, Y minus 1 * szerokosc, Y plus 1 * szerokosc
+
+	for (y=1; y<wysokosc-1; y++)
+	{
+		yszer = y * szerokosc;
+		ym1szer = (y-1) * szerokosc;
+		yp1szer = (y+1) * szerokosc;
+		for (x=1; x<szerokosc-1; x++)
+		{
+			//zaczynam od środkowego wiersza aby przechwycić wartość piksela centralnego
+			wiersz = obrazWe + yszer + x;
+			pixWe[0] = *(wiersz - 1);
+			pix = pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = pix;
+				continue;
+			}
+
+			wiersz = obrazWe + ym1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = pix;
+				continue;
+			}
+
+			wiersz = obrazWe + yp1szer + x;
+			pixWe[0] = *(wiersz - 1);
+			pixWe[1] = *(wiersz);
+			pixWe[2] = *(wiersz + 1);
+			if ((pixWe[0] > prog) || (pixWe[1] > prog)  || (pixWe[2] > prog))
+			{
+				*(obrazWy + yszer + x) = pix;
+				continue;
+			}
+			*(obrazWy + yszer + x) = 0x00;	//jeżeli nie było sąsiadów to usuń go
+		}
+	}
+}
+

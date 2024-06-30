@@ -856,15 +856,15 @@ void StartDefaultTask(void const * argument)
 	      	case TP_HIST_RGB:		//histogram obrazu RGB565
 				uint8_t histR[32], histG[64], histB[32];
 				chObrazGotowy = 0;
-				uint32_t nCzas;
+				uint32_t nCzasOper, nCzasCalk;		//czas całkowity i czas operacji
 				chErr = ZrobZdjecie(320, 240);
 				if (!chErr)
 				{
 					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
 					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);	//214ms
-					nCzas = HAL_GetTick();
+					nCzasOper = HAL_GetTick();
 					HistogramRGB565((uint8_t*)nBuforKamery, histR, histG, histB, 320*240);
-					nCzas = MinalCzas(nCzas);
+					nCzasOper = MinalCzas(nCzasOper);
 
 					//rysuj histogram na  ekranie
 					setColor(RED);
@@ -876,18 +876,19 @@ void StartDefaultTask(void const * argument)
 					setColor(BLUE);
 					for (uint8_t x=0; x<32; x++)
 						fillRect(x*2+192, 240-histB[x], x*2+193, 240);
-					WyswietlDane32("t", nCzas, 10);		//czas liczenia histogramu
+					setColor(GREEN);
+					sprintf(chNapis, "To:  %ld ms", nCzasOper);	//czas operacji i całkowity
+					print(chNapis, 1, 225, 0);
 	  			}
 	  			break;
 
 	      	case TP_HIST_BIT:		//histogram bitów obrazu kamery
-	      		uint16_t m, pix;
-				uint32_t histogram[16];
-
-				chObrazGotowy = 0;
-				chErr = ZrobZdjecie(320, 240);
+				chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
 				if (!chErr)
 				{
+					uint16_t m, pix;
+					uint32_t histogram[16];
+
 					do; while (!chObrazGotowy);	//czekaj na zakończenie transferu DMA
 					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);	//214ms
 					for (uint32_t n=0; n<320*240; n++)
@@ -911,43 +912,143 @@ void StartDefaultTask(void const * argument)
 					}
 
 					//rysuj histogram na  ekranie
-					setColor(GREEN);
+					setColor(BLUE);
 					for (uint8_t x=0; x<16; x++)
 						fillRect(x*10, 240-histogram[x], x*10+6, 240);
 				}
+				chObrazGotowy = 0;
+				chErr = ZrobZdjecie(320, 240);
 	  			break;
 
 	      	case TP_KAM_CB:
 	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
 				if (!chErr)
 				{
-					nCzas = HAL_GetTick();
+					nCzasCalk = nCzasOper = HAL_GetTick();
 	      			KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
-	      			nCzas = MinalCzas(nCzas);
+	      			nCzasOper = MinalCzas(nCzasOper);
 	      			KonwersjaCB7doRGB565(chBuforCB, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+	      			nCzasCalk = MinalCzas(nCzasCalk);
 	      			drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
-	      			WyswietlDane32("t", nCzas, 220);
+	      			setColor(GREEN);
+	      			sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 10, 220, 0);
 	  			}
+				chObrazGotowy = 0;
 				chErr = ZrobZdjecie(320, 240);
 	  			break;
 
-	      	case TP_DET_KRAW:
+	      	case TP_DET_KRAW_ROB:
 	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
 				if (!chErr)
 				{
+					nCzasCalk = HAL_GetTick();
 					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
-					nCzas = HAL_GetTick();
-					DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 32);
-					nCzas = MinalCzas(nCzas);
+					nCzasOper = HAL_GetTick();
+					DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 16);
+					nCzasOper = MinalCzas(nCzasOper);
 					KonwersjaCB7doRGB565(chBuforCKraw, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					nCzasCalk = MinalCzas(nCzasCalk);
 					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
-					WyswietlDane32("t", nCzas, 220);
+					setColor(GREEN);
+					sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 10, 220, 0);
 				}
+				chObrazGotowy = 0;
 				chErr = ZrobZdjecie(320, 240);
 	      		break;
 
+	      	case TP_DET_KRAW_SOB:
+				chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					nCzasCalk = HAL_GetTick();
+					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+					nCzasOper = HAL_GetTick();
+					DetekcjaKrawedziSobel(chBuforCB, chBuforCKraw,  320,  240, 16);
+					nCzasOper = MinalCzas(nCzasOper);
+					KonwersjaCB7doRGB565(chBuforCKraw, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					nCzasCalk = MinalCzas(nCzasCalk);
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+					setColor(GREEN);
+					sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 1, 220, 0);
+				}
+				chObrazGotowy = 0;
+				chErr = ZrobZdjecie(320, 240);
+				break;
+
+	      	case TP_ODSZUMIANIE:
+				chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					nCzasCalk = HAL_GetTick();
+					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+					DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 16);
+					nCzasOper = HAL_GetTick();
+					Odszumianie(chBuforCKraw, chBuforCB, 320, 240, 16);
+					nCzasOper = MinalCzas(nCzasOper);
+					KonwersjaCB7doRGB565(chBuforCB, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					nCzasCalk = MinalCzas(nCzasCalk);
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+					setColor(GREEN);
+					sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 1, 225, 0);
+					chObrazGotowy = 0;
+					chErr = ZrobZdjecie(320, 240);
+				}
+				break;
+
+	      	case TP_DYLATACJA:
+	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					nCzasCalk = HAL_GetTick();
+					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+					DetekcjaKrawedziSobel(chBuforCB, chBuforCKraw,  320,  240, 16);
+					//DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 16);
+					Odszumianie(chBuforCKraw, chBuforCB, 320, 240, 16);
+					nCzasOper = HAL_GetTick();
+					Dylatacja(chBuforCB, chBuforCKraw, 320, 240, 16);
+					nCzasOper = MinalCzas(nCzasOper);
+					KonwersjaCB7doRGB565(chBuforCKraw, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					nCzasCalk = MinalCzas(nCzasCalk);
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+					setColor(GREEN);
+					sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 1, 225, 0);
+					chObrazGotowy = 0;
+					chErr = ZrobZdjecie(320, 240);
+				}
+				break;
+
+	      	case TP_DOMYKANIE:
+	      		chErr = CzekajNaBit(&chObrazGotowy, 1000);	//czekaj z timeoutem na zakończenie transferu DMA
+				if (!chErr)
+				{
+					nCzasCalk = HAL_GetTick();
+					KonwersjaRGB565doCB7((uint16_t*)nBuforKamery, chBuforCB, ROZM_BUF_CB);
+					DetekcjaKrawedziSobel(chBuforCB, chBuforCKraw,  320,  240, 16);
+					//DetekcjaKrawedziRoberts(chBuforCB, chBuforCKraw,  320,  240, 16);
+					Odszumianie(chBuforCKraw, chBuforCB, 320, 240, 16);
+					nCzasOper = HAL_GetTick();
+					Dylatacja(chBuforCB, chBuforCKraw, 320, 240, 16);
+					Erozja(chBuforCKraw, chBuforCB, 320, 240, 16);
+					nCzasOper = MinalCzas(nCzasOper);
+					KonwersjaCB7doRGB565(chBuforCB, (uint16_t*)nBuforKamery, ROZM_BUF_CB);
+					nCzasCalk = MinalCzas(nCzasCalk);
+					drawBitmap(0, 0, 320, 240, (unsigned short*)nBuforKamery);
+					setColor(GREEN);
+					sprintf(chNapis, "To/Tca:  %ld / %ld ms", nCzasOper, nCzasCalk);	//czas operacji i całkowity
+					print(chNapis, 1, 220, 0);
+					chObrazGotowy = 0;
+					chErr = ZrobZdjecie(320, 240);
+				}
+				break;
+
+
 	      	case TP_FRAKTAL:	FraktalDemo();		break;
-	      	case TP_POMOC:		WyswietlPomoc();	break;
+	      	//case TP_POMOC:		WyswietlPomoc();	break;
 
 	      	case TP_ZDJECIE:		//wykonaj zdjęcie o podanych rozmiarach
 	      		chErr = ZrobZdjecie(sSzerZdjecia, sWysZdjecia);

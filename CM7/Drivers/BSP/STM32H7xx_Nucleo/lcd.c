@@ -40,37 +40,48 @@ unsigned char Menu(unsigned char chPozycja)
 		setColor(GREEN);
 		sprintf(chNapis, "AutoPitLot  SysCLK = %lu MHz", HAL_RCC_GetSysClockFreq()/1000000);
 		print(chNapis, 10, 0, 0);
-		sprintf(chNapis, "v%d.%d.%d @ %s %s", WER_GLOWNA, WER_PODRZ, WER_REPO, build_date, build_time);	//numer wersji w repozytorium i czas kompilacji
+		sprintf(chNapis, "v%d.%d @ %s %s", WER_GLOWNA, WER_PODRZ, build_date, build_time);	//numer wersji w repozytorium i czas kompilacji
 		print(chNapis, 10, 20, 0);
 
 		setColor(YELLOW);
-		sprintf(chNapis, "Podglad kamery RGB");
+		sprintf(chNapis, "Podglad RGB");
 		print(chNapis, 20, 40, 0);
 		//sprintf(chNapis, "Magnetometr");
 		sprintf(chNapis, "Setup 2");
 		print(chNapis, 20, 60, 0);
-		//sprintf(chNapis, "Analiza ramki Eth");
-		sprintf(chNapis, "Histogram RGB565");
+		sprintf(chNapis, "Histogram bitow");
 		print(chNapis, 20, 80, 0);
-		sprintf(chNapis, "Histogram bitow obrazu");
+		sprintf(chNapis, "Konwersja na mono");
 		print(chNapis, 20, 100, 0);
-		sprintf(chNapis, "Konwersja na czarno-biały");
+		sprintf(chNapis, "Det. kraw. Roberts");
 		print(chNapis, 20, 120, 0);
-		sprintf(chNapis, "Detekcja krawedzi");
+		sprintf(chNapis, "Det. kraw. Sobel");
 		print(chNapis, 20, 140, 0);
-		sprintf(chNapis, "...");
+		sprintf(chNapis, "Odszumianie");
 		print(chNapis, 20, 160, 0);
-		sprintf(chNapis, "Fraktale");
+		sprintf(chNapis, "Dylatacja");
 		print(chNapis, 20, 180, 0);
-		sprintf(chNapis, "Pomocy, kabelki!");
+		sprintf(chNapis, "Domykanie");
 		print(chNapis, 20, 200, 0);
 
-		/*sprintf(chNapis, "Kasuj flash");
+		sprintf(chNapis, "...");
 		print(chNapis, 180, 40, 0);
-		sprintf(chNapis, "Nic 1");
+		sprintf(chNapis, "Histogram RGB565");
 		print(chNapis, 180, 60, 0);
-		sprintf(chNapis, "Nic 2");
-		print(chNapis, 180, 80, 0);*/
+		sprintf(chNapis, "...");
+		print(chNapis, 180, 80, 0);
+		sprintf(chNapis, "...");
+		print(chNapis, 180, 100, 0);
+		sprintf(chNapis, "...");
+		print(chNapis, 180, 120, 0);
+		sprintf(chNapis, "...");
+		print(chNapis, 180, 140, 0);
+		sprintf(chNapis, "Fraktale");
+		print(chNapis, 180, 160, 0);
+		sprintf(chNapis, "Analiza ramki Eth");
+		print(chNapis, 180, 180, 0);
+		sprintf(chNapis, "Pomocy, kabelki!");
+		print(chNapis, 180, 200, 0);
 		chRysujRaz = 0;
 		InitFraktal(0);
 	}
@@ -82,18 +93,18 @@ unsigned char Menu(unsigned char chPozycja)
 		x = 0;
 		y = chPozycja * 20 + 40;
 	}
-	/*else		//obsługa prawej połowy ekranu
+	else		//obsługa prawej połowy ekranu
 	{
 		x = 160;
 		y = (chPozycja - SRODKOWA_POZYCJA_MENU) * 20 + 40;
-	}*/
+	}
 	printChar('>', x, y);
 
 	//rysuj znacznik pozycji menu
 	setColor(CYAN);
 	chPozycja++;
-	//if (chPozycja >= OSTATNIA_POZYCJA_MENU)	//menu na prawej i lewej części ekranu
-	if (chPozycja >= SRODKOWA_POZYCJA_MENU)		//menu po lewej części ekranu
+	if (chPozycja >= OSTATNIA_POZYCJA_MENU)	//menu na prawej i lewej części ekranu
+	//if (chPozycja >= SRODKOWA_POZYCJA_MENU)		//menu po lewej części ekranu
 		chPozycja = 0;
 
 	//oblicz współrzędne znacznika
@@ -102,11 +113,11 @@ unsigned char Menu(unsigned char chPozycja)
 		x = 0;
 		y = chPozycja * 20 + 40;
 	}
-	/*else		//obsługa prawej połowy ekranu
+	else		//obsługa prawej połowy ekranu
 	{
 		x = 160;
 		y = (chPozycja - SRODKOWA_POZYCJA_MENU) * 20 + 40;
-	}*/
+	}
 	printChar('>', x, y);
 
 	return chPozycja;

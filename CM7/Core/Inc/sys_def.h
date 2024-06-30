@@ -39,19 +39,26 @@
 
 //tryby pracy
 #define TP_KAMERA_RGB	0
-#define TP_CAN_MAGN		11
-#define TP_ANALIZA_ETH	12
 #define TP_KAM_SET2		1
-#define TP_HIST_RGB		2
-#define TP_HIST_BIT		3
-#define TP_KAM_CB		4
-#define TP_DET_KRAW		5
-#define TP_				6
-#define TP_FRAKTAL		7
-#define TP_POMOC		8
-#define TP_MENU			10
+#define TP_HIST_BIT		2
+#define TP_KAM_CB		3
+#define TP_DET_KRAW_ROB	4
+#define TP_DET_KRAW_SOB	5
+#define TP_ODSZUMIANIE	6
+#define TP_DYLATACJA	7
+#define TP_DOMYKANIE	8
+
+#define TP_HIST_RGB		10
+
+#define TP_FRAKTAL		15
+#define TP_ANALIZA_ETH	16
+#define TP_POMOC		17
+
 //miejsce na rozbudowe menu
 #define TP_ZDJECIE		20	//wykonaj zdjęcie
+#define TP_MENU			21
+#define TP_CAN_MAGN		22
+
 
 
 

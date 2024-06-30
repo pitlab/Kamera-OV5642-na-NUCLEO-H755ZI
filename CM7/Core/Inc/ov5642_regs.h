@@ -1329,7 +1329,7 @@ const struct sensor_reg OV5642_RGB_QVGA[]  =
 	{0x5505 ,0x7f},
 
 	//average window - okno uśredniania jasności
-/*	{0x5680 ,0x0 },		//AVG X start: [3:0]
+	{0x5680 ,0x0 },		//AVG X start: [3:0]
 	{0x5681 ,0x0 },		//AVG X start: [7:0]
 	{0x5682 ,0x05},		//AVG X end: [3:0] Average end position [11:8] for average window
 	{0x5683 ,0x00},		//AVG X end: [7:0] Average end position [7:0] for average window
@@ -1337,7 +1337,7 @@ const struct sensor_reg OV5642_RGB_QVGA[]  =
 	{0x5685 ,0x0 },		//AVG Y start: [7:0]
 	{0x5686 ,0x3 },		//AVG Y end: [3:0]
 	{0x5687 ,0xc0},		//AVG Y end: [7:0]
-	{0x3815 ,0x02},*/
+	//{0x3815 ,0x02},
 
 	//;AE
 	{0x5025 ,0x80},

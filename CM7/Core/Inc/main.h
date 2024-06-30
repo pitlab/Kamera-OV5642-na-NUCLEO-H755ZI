@@ -122,10 +122,14 @@ extern void RAW2RGB(uint32_t *nBufKamery, uint16_t *sBufLCD);
 extern HAL_StatusTypeDef ZrobZdjecie(int16_t sSzerokosc, uint16_t sWysokosc);
 extern HAL_StatusTypeDef ZrobZdjecie2(int16_t sSzerokosc, uint16_t sWysokosc, uint8_t rej);
 extern unsigned int MinalCzas(unsigned int nStart);
+extern void print(char *st, int x, int y, int deg);
 
 //obróbka obrazu
 extern void KonwersjaRGB565doCB7(uint16_t *obrazRGB565, uint8_t *obrazCB, uint32_t rozmiar);
 extern void KonwersjaCB7doRGB565(uint8_t *obrazCB, uint16_t *obrazCB565, uint32_t rozmiar);
+extern void Progowanie(uint8_t *obraz, uint8_t prog, uint32_t rozmiar);
+extern void DetekcjaKrawedziRoberts(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog);
+extern void DetekcjaKrawedziSobel(uint8_t *obrazWe, uint8_t *obrazWy, uint16_t szerokosc, uint16_t wysokosc, uint8_t prog);
 
 //Ethernet
 extern uint8_t  InitEth(ETH_HandleTypeDef* pEth);
