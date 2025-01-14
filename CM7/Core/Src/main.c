@@ -28,7 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "display.h"
-#include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
+#include "..\..\..\Common\Inc\PoleceniaKomunikacyjne.h"
 #include "analiza_obrazu.h"
 #include "..\..\..\Common\Inc\errcode.h"
 /* USER CODE END Includes */

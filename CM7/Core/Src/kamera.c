@@ -38,7 +38,7 @@
 #include "kamera.h"
 #include "stm32h7xx_nucleo.h"
 #include "..\..\..\Common\Inc\errcode.h"
-#include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
+#include "..\..\..\Common\Inc\PoleceniaKomunikacyjne.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////

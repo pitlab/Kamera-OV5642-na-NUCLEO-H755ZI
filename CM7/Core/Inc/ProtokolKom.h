@@ -10,7 +10,7 @@
 
 #include "stm32h7xx_hal.h"
 #include "stm32h7xx_nucleo.h"
-#include "..\..\..\..\include\PoleceniaKomunikacyjne.h"
+#include "..\..\..\Common\Inc\PoleceniaKomunikacyjne.h"
 #include "konfiguracja.h"
 #include "sys_def.h"
 
